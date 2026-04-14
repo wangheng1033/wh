@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.javaboy.vhr.mapper.OfferMapper" >
+  <resultMap id="BaseResultMap" type="org.javaboy.vhr.model.Offer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="resumeId" property="resumeId" jdbcType="INTEGER" />
+    <result column="interviewId" property="interviewId" jdbcType="INTEGER" />
+    <result column="candidateName" property="candidateName" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="positionId" property="positionId" jdbcType="INTEGER" />
+    <result column="positionName" property="positionName" jdbcType="VARCHAR" />
+    <result column="departmentId" property="departmentId" jdbcType="INTEGER" />
+    <result column="departmentName" property="departmentName" jdbcType="VARCHAR" />
+    <result column="salary" property="salary" jdbcType="DECIMAL" />
+    <result column="probation" property="probation" jdbcType="INTEGER" />
+    <result column="entryTime" property="entryTime" jdbcType="DATE" />
+    <result column="validUntil" property="validUntil" jdbcType="DATE" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="sendTime" property="sendTime" jdbcType="TIMESTAMP" />
+    <result column="viewTime" property="viewTime" jdbcType="TIMESTAMP" />
+    <result column="viewStatus" property="viewStatus" jdbcType="VARCHAR" />
+    <result column="confirmTime" property="confirmTime" jdbcType="TIMESTAMP" />
+    <result column="rejectReason" property="rejectReason" jdbcType="VARCHAR" />
+    <result column="entryReminderSent" property="entryReminderSent" jdbcType="BIT" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="createBy" property="createBy" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <association property="position" javaType="org.javaboy.vhr.model.Position">
+      <id column="pid" property="id"/>
+      <result column="pname" property="name"/>
+    </association>
+    <association property="department" javaType="org.javaboy.vhr.model.Department">
+      <id column="did" property="id"/>
+      <result column="dname" property="name"/>
+    </association>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    o.id, o.resumeId, o.interviewId, o.candidateName, o.phone, o.email, o.positionId, 
+    o.positionName, o.departmentId, o.departmentName, o.salary, o.probation, o.entryTime, 
+    o.validUntil, o.status, o.sendTime, o.viewTime, o.viewStatus, o.confirmTime, 
+    o.rejectReason, o.entryReminderSent, o.createTime, o.updateTime, o.createBy, o.remark
+  </sql>
+  
+  <select id="getOfferByPage" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM `offer` o
+    LEFT JOIN position p ON o.positionId = p.id
+    LEFT JOIN department d ON o.departmentId = d.id
+    <where>
+      <if test="offer.candidateName != null and offer.candidateName != ''">
+        AND o.candidateName LIKE CONCAT('%',#{offer.candidateName},'%')
+      </if>
+      <if test="offer.status != null and offer.status != ''">
+        AND o.status = #{offer.status}
+      </if>
+      <if test="offer.viewStatus != null and offer.viewStatus != ''">
+        AND o.viewStatus = #{offer.viewStatus}
+      </if>
+      <if test="offer.positionId != null">
+        AND o.positionId = #{offer.positionId}
+      </if>
+      <if test="offer.departmentId != null">
+        AND o.departmentId = #{offer.departmentId}
+      </if>
+    </where>
+    ORDER BY o.createTime DESC
+    <if test="page != null and size != null">
+      LIMIT #{page}, #{size}
+    </if>
+  </select>
+  
+  <select id="getTotal" resultType="java.lang.Long">
+    SELECT COUNT(*) FROM `offer` o
+    <where>
+      <if test="offer.candidateName != null and offer.candidateName != ''">
+        AND o.candidateName LIKE CONCAT('%',#{offer.candidateName},'%')
+      </if>
+      <if test="offer.status != null and offer.status != ''">
+        AND o.status = #{offer.status}
+      </if>
+      <if test="offer.viewStatus != null and offer.viewStatus != ''">
+        AND o.viewStatus = #{offer.viewStatus}
+      </if>
+      <if test="offer.positionId != null">
+        AND o.positionId = #{offer.positionId}
+      </if>
+      <if test="offer.departmentId != null">
+        AND o.departmentId = #{offer.departmentId}
+      </if>
+    </where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM `offer` o
+    LEFT JOIN position p ON o.positionId = p.id
+    LEFT JOIN department d ON o.departmentId = d.id
+    WHERE o.id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getOffersNeedReminder" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM `offer` o
+    WHERE o.status = '已接受' 
+    AND o.entryReminderSent = 0 
+    AND o.entryTime IS NOT NULL
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    DELETE FROM `offer` WHERE id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.javaboy.vhr.model.Offer" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `offer` (resumeId, interviewId, candidateName, phone, email, positionId, 
+      positionName, departmentId, departmentName, salary, probation, entryTime, validUntil, 
+      status, viewStatus, entryReminderSent, createBy, remark)
+    VALUES (#{resumeId}, #{interviewId}, #{candidateName}, #{phone}, #{email}, #{positionId},
+      #{positionName}, #{departmentId}, #{departmentName}, #{salary}, #{probation}, #{entryTime}, #{validUntil},
+      #{status}, #{viewStatus}, #{entryReminderSent}, #{createBy}, #{remark})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="org.javaboy.vhr.model.Offer" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `offer`
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="resumeId != null" >resumeId,</if>
+      <if test="interviewId != null" >interviewId,</if>
+      <if test="candidateName != null" >candidateName,</if>
+      <if test="phone != null" >phone,</if>
+      <if test="email != null" >email,</if>
+      <if test="positionId != null" >positionId,</if>
+      <if test="positionName != null" >positionName,</if>
+      <if test="departmentId != null" >departmentId,</if>
+      <if test="departmentName != null" >departmentName,</if>
+      <if test="salary != null" >salary,</if>
+      <if test="probation != null" >probation,</if>
+      <if test="entryTime != null" >entryTime,</if>
+      <if test="validUntil != null" >validUntil,</if>
+      <if test="status != null" >status,</if>
+      <if test="sendTime != null" >sendTime,</if>
+      <if test="viewStatus != null" >viewStatus,</if>
+      <if test="entryReminderSent != null" >entryReminderSent,</if>
+      <if test="createBy != null" >createBy,</if>
+      <if test="remark != null" >remark,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="resumeId != null" >#{resumeId},</if>
+      <if test="interviewId != null" >#{interviewId},</if>
+      <if test="candidateName != null" >#{candidateName},</if>
+      <if test="phone != null" >#{phone},</if>
+      <if test="email != null" >#{email},</if>
+      <if test="positionId != null" >#{positionId},</if>
+      <if test="positionName != null" >#{positionName},</if>
+      <if test="departmentId != null" >#{departmentId},</if>
+      <if test="departmentName != null" >#{departmentName},</if>
+      <if test="salary != null" >#{salary},</if>
+      <if test="probation != null" >#{probation},</if>
+      <if test="entryTime != null" >#{entryTime},</if>
+      <if test="validUntil != null" >#{validUntil},</if>
+      <if test="status != null" >#{status},</if>
+      <if test="sendTime != null" >#{sendTime},</if>
+      <if test="viewStatus != null" >#{viewStatus},</if>
+      <if test="entryReminderSent != null" >#{entryReminderSent},</if>
+      <if test="createBy != null" >#{createBy},</if>
+      <if test="remark != null" >#{remark},</if>
+    </trim>
+  </insert>
+  
+  <update id="updateStatus">
+    UPDATE `offer` SET status = #{status}, 
+    <if test="status == '已接受' or status == '已拒绝'">
+      confirmTime = NOW(),
+    </if>
+    updateTime = NOW() 
+    WHERE id = #{id}
+  </update>
+  
+  <update id="updateViewStatus">
+    UPDATE `offer` SET viewStatus = '已查看', viewTime = NOW(), updateTime = NOW() WHERE id = #{id}
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="org.javaboy.vhr.model.Offer" >
+    UPDATE `offer`
+    <set >
+      <if test="resumeId != null" >resumeId = #{resumeId},</if>
+      <if test="interviewId != null" >interviewId = #{interviewId},</if>
+      <if test="candidateName != null" >candidateName = #{candidateName},</if>
+      <if test="phone != null" >phone = #{phone},</if>
+      <if test="email != null" >email = #{email},</if>
+      <if test="positionId != null" >positionId = #{positionId},</if>
+      <if test="positionName != null" >positionName = #{positionName},</if>
+      <if test="departmentId != null" >departmentId = #{departmentId},</if>
+      <if test="departmentName != null" >departmentName = #{departmentName},</if>
+      <if test="salary != null" >salary = #{salary},</if>
+      <if test="probation != null" >probation = #{probation},</if>
+      <if test="entryTime != null" >entryTime = #{entryTime},</if>
+      <if test="validUntil != null" >validUntil = #{validUntil},</if>
+      <if test="status != null" >status = #{status},</if>
+      <if test="sendTime != null" >sendTime = #{sendTime},</if>
+      <if test="viewStatus != null" >viewStatus = #{viewStatus},</if>
+      <if test="confirmTime != null" >confirmTime = #{confirmTime},</if>
+      <if test="rejectReason != null" >rejectReason = #{rejectReason},</if>
+      <if test="entryReminderSent != null" >entryReminderSent = #{entryReminderSent},</if>
+      <if test="createBy != null" >createBy = #{createBy},</if>
+      <if test="remark != null" >remark = #{remark},</if>
+      updateTime = NOW()
+    </set>
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="org.javaboy.vhr.model.Offer" >
+    UPDATE `offer` SET
+      resumeId = #{resumeId}, interviewId = #{interviewId}, candidateName = #{candidateName}, 
+      phone = #{phone}, email = #{email}, positionId = #{positionId}, positionName = #{positionName}, 
+      departmentId = #{departmentId}, departmentName = #{departmentName}, salary = #{salary}, 
+      probation = #{probation}, entryTime = #{entryTime}, validUntil = #{validUntil}, status = #{status}, 
+      sendTime = #{sendTime}, viewStatus = #{viewStatus}, confirmTime = #{confirmTime}, 
+      rejectReason = #{rejectReason}, entryReminderSent = #{entryReminderSent}, createBy = #{createBy}, 
+      remark = #{remark}, updateTime = NOW()
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.javaboy.vhr.mapper.ResumeMapper" >
+  <resultMap id="BaseResultMap" type="org.javaboy.vhr.model.Resume" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="workYears" property="workYears" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="expectedSalary" property="expectedSalary" jdbcType="DECIMAL" />
+    <result column="positionId" property="positionId" jdbcType="INTEGER" />
+    <result column="departmentId" property="departmentId" jdbcType="INTEGER" />
+    <result column="workExperience" property="workExperience" jdbcType="VARCHAR" />
+    <result column="educationExperience" property="educationExperience" jdbcType="VARCHAR" />
+    <result column="skills" property="skills" jdbcType="VARCHAR" />
+    <result column="selfEvaluation" property="selfEvaluation" jdbcType="VARCHAR" />
+    <result column="attachmentPath" property="attachmentPath" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="hrId" property="hrId" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <association property="position" javaType="org.javaboy.vhr.model.Position">
+      <id column="pid" property="id"/>
+      <result column="pname" property="name"/>
+    </association>
+    <association property="department" javaType="org.javaboy.vhr.model.Department">
+      <id column="did" property="id"/>
+      <result column="dname" property="name"/>
+    </association>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    r.id, r.name, r.gender, r.age, r.education, r.workYears, r.phone, r.email, 
+    r.expectedSalary, r.positionId, r.departmentId, r.workExperience, r.educationExperience, 
+    r.skills, r.selfEvaluation, r.attachmentPath, r.status, r.createTime, r.updateTime, 
+    r.hrId, r.remark
+  </sql>
+  
+  <select id="getResumeByPage" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM resume r
+    LEFT JOIN position p ON r.positionId = p.id
+    LEFT JOIN department d ON r.departmentId = d.id
+    <where>
+      <if test="resume.name != null and resume.name != ''">
+        AND r.name LIKE CONCAT('%',#{resume.name},'%')
+      </if>
+      <if test="resume.phone != null and resume.phone != ''">
+        AND r.phone LIKE CONCAT('%',#{resume.phone},'%')
+      </if>
+      <if test="resume.education != null and resume.education != ''">
+        AND r.education = #{resume.education}
+      </if>
+      <if test="resume.status != null and resume.status != ''">
+        AND r.status = #{resume.status}
+      </if>
+      <if test="resume.positionId != null">
+        AND r.positionId = #{resume.positionId}
+      </if>
+      <if test="resume.departmentId != null">
+        AND r.departmentId = #{resume.departmentId}
+      </if>
+      <if test="resume.workYears != null">
+        AND r.workYears &gt;= #{resume.workYears}
+      </if>
+    </where>
+    ORDER BY r.createTime DESC
+    <if test="page != null and size != null">
+      LIMIT #{page}, #{size}
+    </if>
+  </select>
+  
+  <select id="getTotal" resultType="java.lang.Long">
+    SELECT COUNT(*) FROM resume r
+    <where>
+      <if test="resume.name != null and resume.name != ''">
+        AND r.name LIKE CONCAT('%',#{resume.name},'%')
+      </if>
+      <if test="resume.phone != null and resume.phone != ''">
+        AND r.phone LIKE CONCAT('%',#{resume.phone},'%')
+      </if>
+      <if test="resume.education != null and resume.education != ''">
+        AND r.education = #{resume.education}
+      </if>
+      <if test="resume.status != null and resume.status != ''">
+        AND r.status = #{resume.status}
+      </if>
+      <if test="resume.positionId != null">
+        AND r.positionId = #{resume.positionId}
+      </if>
+      <if test="resume.departmentId != null">
+        AND r.departmentId = #{resume.departmentId}
+      </if>
+      <if test="resume.workYears != null">
+        AND r.workYears &gt;= #{resume.workYears}
+      </if>
+    </where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM resume r
+    LEFT JOIN position p ON r.positionId = p.id
+    LEFT JOIN department d ON r.departmentId = d.id
+    WHERE r.id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getResumesByIds" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM resume r
+    WHERE r.id IN
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </select>
+  
+  <select id="getResumesForExport" resultMap="BaseResultMap">
+    SELECT r.*, p.name as pname, d.name as dname
+    FROM resume r
+    LEFT JOIN position p ON r.positionId = p.id
+    LEFT JOIN department d ON r.departmentId = d.id
+    <where>
+      <if test="resume.name != null and resume.name != ''">
+        AND r.name LIKE CONCAT('%',#{resume.name},'%')
+      </if>
+      <if test="resume.phone != null and resume.phone != ''">
+        AND r.phone LIKE CONCAT('%',#{resume.phone},'%')
+      </if>
+      <if test="resume.education != null and resume.education != ''">
+        AND r.education = #{resume.education}
+      </if>
+      <if test="resume.status != null and resume.status != ''">
+        AND r.status = #{resume.status}
+      </if>
+      <if test="resume.positionId != null">
+        AND r.positionId = #{resume.positionId}
+      </if>
+    </where>
+    ORDER BY r.createTime DESC
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    DELETE FROM resume WHERE id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.javaboy.vhr.model.Resume" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO resume (name, gender, age, education, workYears, phone, email, expectedSalary, 
+      positionId, departmentId, workExperience, educationExperience, skills, selfEvaluation, 
+      attachmentPath, status, hrId, remark)
+    VALUES (#{name}, #{gender}, #{age}, #{education}, #{workYears}, #{phone}, #{email}, #{expectedSalary},
+      #{positionId}, #{departmentId}, #{workExperience}, #{educationExperience}, #{skills}, #{selfEvaluation},
+      #{attachmentPath}, #{status}, #{hrId}, #{remark})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="org.javaboy.vhr.model.Resume" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO resume
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="name != null" >name,</if>
+      <if test="gender != null" >gender,</if>
+      <if test="age != null" >age,</if>
+      <if test="education != null" >education,</if>
+      <if test="workYears != null" >workYears,</if>
+      <if test="phone != null" >phone,</if>
+      <if test="email != null" >email,</if>
+      <if test="expectedSalary != null" >expectedSalary,</if>
+      <if test="positionId != null" >positionId,</if>
+      <if test="departmentId != null" >departmentId,</if>
+      <if test="workExperience != null" >workExperience,</if>
+      <if test="educationExperience != null" >educationExperience,</if>
+      <if test="skills != null" >skills,</if>
+      <if test="selfEvaluation != null" >selfEvaluation,</if>
+      <if test="attachmentPath != null" >attachmentPath,</if>
+      <if test="status != null" >status,</if>
+      <if test="hrId != null" >hrId,</if>
+      <if test="remark != null" >remark,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="name != null" >#{name},</if>
+      <if test="gender != null" >#{gender},</if>
+      <if test="age != null" >#{age},</if>
+      <if test="education != null" >#{education},</if>
+      <if test="workYears != null" >#{workYears},</if>
+      <if test="phone != null" >#{phone},</if>
+      <if test="email != null" >#{email},</if>
+      <if test="expectedSalary != null" >#{expectedSalary},</if>
+      <if test="positionId != null" >#{positionId},</if>
+      <if test="departmentId != null" >#{departmentId},</if>
+      <if test="workExperience != null" >#{workExperience},</if>
+      <if test="educationExperience != null" >#{educationExperience},</if>
+      <if test="skills != null" >#{skills},</if>
+      <if test="selfEvaluation != null" >#{selfEvaluation},</if>
+      <if test="attachmentPath != null" >#{attachmentPath},</if>
+      <if test="status != null" >#{status},</if>
+      <if test="hrId != null" >#{hrId},</if>
+      <if test="remark != null" >#{remark},</if>
+    </trim>
+  </insert>
+  
+  <update id="updateStatus">
+    UPDATE resume SET status = #{status}, updateTime = NOW() WHERE id = #{id}
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="org.javaboy.vhr.model.Resume" >
+    UPDATE resume
+    <set >
+      <if test="name != null" >name = #{name},</if>
+      <if test="gender != null" >gender = #{gender},</if>
+      <if test="age != null" >age = #{age},</if>
+      <if test="education != null" >education = #{education},</if>
+      <if test="workYears != null" >workYears = #{workYears},</if>
+      <if test="phone != null" >phone = #{phone},</if>
+      <if test="email != null" >email = #{email},</if>
+      <if test="expectedSalary != null" >expectedSalary = #{expectedSalary},</if>
+      <if test="positionId != null" >positionId = #{positionId},</if>
+      <if test="departmentId != null" >departmentId = #{departmentId},</if>
+      <if test="workExperience != null" >workExperience = #{workExperience},</if>
+      <if test="educationExperience != null" >educationExperience = #{educationExperience},</if>
+      <if test="skills != null" >skills = #{skills},</if>
+      <if test="selfEvaluation != null" >selfEvaluation = #{selfEvaluation},</if>
+      <if test="attachmentPath != null" >attachmentPath = #{attachmentPath},</if>
+      <if test="status != null" >status = #{status},</if>
+      <if test="hrId != null" >hrId = #{hrId},</if>
+      <if test="remark != null" >remark = #{remark},</if>
+      updateTime = NOW()
+    </set>
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="org.javaboy.vhr.model.Resume" >
+    UPDATE resume SET
+      name = #{name}, gender = #{gender}, age = #{age}, education = #{education},
+      workYears = #{workYears}, phone = #{phone}, email = #{email}, expectedSalary = #{expectedSalary},
+      positionId = #{positionId}, departmentId = #{departmentId}, workExperience = #{workExperience},
+      educationExperience = #{educationExperience}, skills = #{skills}, selfEvaluation = #{selfEvaluation},
+      attachmentPath = #{attachmentPath}, status = #{status}, hrId = #{hrId}, remark = #{remark},
+      updateTime = NOW()
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
