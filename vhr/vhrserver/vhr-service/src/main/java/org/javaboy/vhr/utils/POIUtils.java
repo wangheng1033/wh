@@ -356,4 +356,158 @@ public class POIUtils {
         }
         return list;
     }
+
+    /**
+     * 简历数据导出为Excel
+     */
+    public static ResponseEntity<byte[]> resume2Excel(List<Resume> list) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        workbook.createInformationProperties();
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryProperties();
+        docInfo.setCategory("简历信息");
+        docInfo.setManager("javaboy");
+        docInfo.setCompany("www.javaboy.org");
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("简历信息表");
+        summInfo.setAuthor("javaboy");
+        summInfo.setComments("本文档由 javaboy 提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        HSSFSheet sheet = workbook.createSheet("简历信息表");
+        sheet.setColumnWidth(0, 8 * 256);
+        sheet.setColumnWidth(1, 12 * 256);
+        sheet.setColumnWidth(2, 8 * 256);
+        sheet.setColumnWidth(3, 8 * 256);
+        sheet.setColumnWidth(4, 12 * 256);
+        sheet.setColumnWidth(5, 12 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 20 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
+        sheet.setColumnWidth(9, 15 * 256);
+        sheet.setColumnWidth(10, 20 * 256);
+        sheet.setColumnWidth(11, 12 * 256);
+        sheet.setColumnWidth(12, 20 * 256);
+
+        HSSFRow r0 = sheet.createRow(0);
+        String[] headers = {"编号", "姓名", "性别", "年龄", "学历", "工作年限", "联系电话", "邮箱", "期望薪资", "求职意向", "状态", "来源", "创建时间"};
+        for (int i = 0; i < headers.length; i++) {
+            HSSFCell cell = r0.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        String[] statusArr = {"待筛选", "已筛选", "待面试", "已拒绝", "已录用"};
+        String[] sourceArr = {"手动录入", "Excel导入"};
+
+        for (int i = 0; i < list.size(); i++) {
+            Resume resume = list.get(i);
+            HSSFRow row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(resume.getId());
+            row.createCell(1).setCellValue(resume.getName());
+            row.createCell(2).setCellValue(resume.getGender());
+            row.createCell(3).setCellValue(resume.getAge());
+            row.createCell(4).setCellValue(resume.getEducation());
+            row.createCell(5).setCellValue(resume.getWorkYears());
+            row.createCell(6).setCellValue(resume.getPhone());
+            row.createCell(7).setCellValue(resume.getEmail());
+            row.createCell(8).setCellValue(resume.getExpectedSalary());
+            row.createCell(9).setCellValue(resume.getJobIntention());
+            row.createCell(10).setCellValue(resume.getStatus() != null && resume.getStatus() >= 0 && resume.getStatus() < statusArr.length ? statusArr[resume.getStatus()] : "未知");
+            row.createCell(11).setCellValue(resume.getSource() != null && resume.getSource() >= 0 && resume.getSource() < sourceArr.length ? sourceArr[resume.getSource()] : "未知");
+            row.createCell(12).setCellValue(resume.getCreateTime() != null ? resume.getCreateTime().toString() : "");
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers1 = new HttpHeaders();
+        try {
+            headers1.setContentDispositionFormData("attachment", new String("简历表.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers1.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers1, HttpStatus.CREATED);
+    }
+
+    /**
+     * Excel解析成简历数据集合
+     */
+    public static List<Resume> excel2Resume(MultipartFile file) {
+        List<Resume> list = new ArrayList<>();
+        Resume resume = null;
+        try {
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            int numberOfSheets = workbook.getNumberOfSheets();
+            for (int i = 0; i < numberOfSheets; i++) {
+                HSSFSheet sheet = workbook.getSheetAt(i);
+                int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+                for (int j = 0; j < physicalNumberOfRows; j++) {
+                    if (j == 0) {
+                        continue;
+                    }
+                    HSSFRow row = sheet.getRow(j);
+                    if (row == null) {
+                        continue;
+                    }
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    resume = new Resume();
+                    resume.setSource(1);
+                    resume.setStatus(0);
+                    for (int k = 0; k < physicalNumberOfCells; k++) {
+                        HSSFCell cell = row.getCell(k);
+                        if (cell == null) continue;
+                        switch (cell.getCellType()) {
+                            case STRING:
+                                String cellValue = cell.getStringCellValue();
+                                switch (k) {
+                                    case 0:
+                                        resume.setName(cellValue);
+                                        break;
+                                    case 1:
+                                        resume.setGender(cellValue);
+                                        break;
+                                    case 3:
+                                        resume.setEducation(cellValue);
+                                        break;
+                                    case 5:
+                                        resume.setPhone(cellValue);
+                                        break;
+                                    case 6:
+                                        resume.setEmail(cellValue);
+                                        break;
+                                    case 7:
+                                        resume.setExpectedSalary(cellValue);
+                                        break;
+                                    case 8:
+                                        resume.setJobIntention(cellValue);
+                                        break;
+                                }
+                                break;
+                            case NUMERIC:
+                                switch (k) {
+                                    case 2:
+                                        resume.setAge((int) cell.getNumericCellValue());
+                                        break;
+                                    case 4:
+                                        resume.setWorkYears((int) cell.getNumericCellValue());
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (resume.getName() != null && !resume.getName().trim().isEmpty()) {
+                        list.add(resume);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

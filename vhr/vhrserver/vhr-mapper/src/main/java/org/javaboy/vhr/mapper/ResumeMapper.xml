@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.javaboy.vhr.mapper.ResumeMapper">
+    <resultMap id="BaseResultMap" type="org.javaboy.vhr.model.Resume">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="CHAR"/>
+        <result column="age" property="age" jdbcType="INTEGER"/>
+        <result column="education" property="education" jdbcType="VARCHAR"/>
+        <result column="work_years" property="workYears" jdbcType="INTEGER"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="expected_salary" property="expectedSalary" jdbcType="VARCHAR"/>
+        <result column="job_intention" property="jobIntention" jdbcType="VARCHAR"/>
+        <result column="work_experience" property="workExperience" jdbcType="VARCHAR"/>
+        <result column="education_experience" property="educationExperience" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="attachment_url" property="attachmentUrl" jdbcType="VARCHAR"/>
+        <result column="attachment_name" property="attachmentName" jdbcType="VARCHAR"/>
+        <result column="source" property="source" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, gender, age, education, work_years, phone, email, expected_salary, job_intention,
+        work_experience, education_experience, status, attachment_url, attachment_name, source,
+        create_time, update_time, remark
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from resume
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from resume
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" parameterType="org.javaboy.vhr.model.Resume">
+        insert into resume (id, name, gender, age, education, work_years, phone, email,
+                            expected_salary, job_intention, work_experience, education_experience,
+                            status, attachment_url, attachment_name, source, remark)
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR},
+                #{age,jdbcType=INTEGER}, #{education,jdbcType=VARCHAR}, #{workYears,jdbcType=INTEGER},
+                #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{expectedSalary,jdbcType=VARCHAR},
+                #{jobIntention,jdbcType=VARCHAR}, #{workExperience,jdbcType=VARCHAR},
+                #{educationExperience,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT},
+                #{attachmentUrl,jdbcType=VARCHAR}, #{attachmentName,jdbcType=VARCHAR},
+                #{source,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="org.javaboy.vhr.model.Resume" useGeneratedKeys="true" keyProperty="id">
+        insert into resume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                name,
+            </if>
+            <if test="gender != null">
+                gender,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="education != null">
+                education,
+            </if>
+            <if test="workYears != null">
+                work_years,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="expectedSalary != null">
+                expected_salary,
+            </if>
+            <if test="jobIntention != null">
+                job_intention,
+            </if>
+            <if test="workExperience != null">
+                work_experience,
+            </if>
+            <if test="educationExperience != null">
+                education_experience,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="attachmentUrl != null">
+                attachment_url,
+            </if>
+            <if test="attachmentName != null">
+                attachment_name,
+            </if>
+            <if test="source != null">
+                source,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="gender != null">
+                #{gender,jdbcType=CHAR},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=INTEGER},
+            </if>
+            <if test="education != null">
+                #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="workYears != null">
+                #{workYears,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="expectedSalary != null">
+                #{expectedSalary,jdbcType=VARCHAR},
+            </if>
+            <if test="jobIntention != null">
+                #{jobIntention,jdbcType=VARCHAR},
+            </if>
+            <if test="workExperience != null">
+                #{workExperience,jdbcType=VARCHAR},
+            </if>
+            <if test="educationExperience != null">
+                #{educationExperience,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="attachmentUrl != null">
+                #{attachmentUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="attachmentName != null">
+                #{attachmentName,jdbcType=VARCHAR},
+            </if>
+            <if test="source != null">
+                #{source,jdbcType=TINYINT},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.javaboy.vhr.model.Resume">
+        update resume
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="gender != null">
+                gender = #{gender,jdbcType=CHAR},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=INTEGER},
+            </if>
+            <if test="education != null">
+                education = #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="workYears != null">
+                work_years = #{workYears,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="expectedSalary != null">
+                expected_salary = #{expectedSalary,jdbcType=VARCHAR},
+            </if>
+            <if test="jobIntention != null">
+                job_intention = #{jobIntention,jdbcType=VARCHAR},
+            </if>
+            <if test="workExperience != null">
+                work_experience = #{workExperience,jdbcType=VARCHAR},
+            </if>
+            <if test="educationExperience != null">
+                education_experience = #{educationExperience,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="attachmentUrl != null">
+                attachment_url = #{attachmentUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="attachmentName != null">
+                attachment_name = #{attachmentName,jdbcType=VARCHAR},
+            </if>
+            <if test="source != null">
+                source = #{source,jdbcType=TINYINT},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.javaboy.vhr.model.Resume">
+        update resume
+        set name = #{name,jdbcType=VARCHAR},
+            gender = #{gender,jdbcType=CHAR},
+            age = #{age,jdbcType=INTEGER},
+            education = #{education,jdbcType=VARCHAR},
+            work_years = #{workYears,jdbcType=INTEGER},
+            phone = #{phone,jdbcType=VARCHAR},
+            email = #{email,jdbcType=VARCHAR},
+            expected_salary = #{expectedSalary,jdbcType=VARCHAR},
+            job_intention = #{jobIntention,jdbcType=VARCHAR},
+            work_experience = #{workExperience,jdbcType=VARCHAR},
+            education_experience = #{educationExperience,jdbcType=VARCHAR},
+            status = #{status,jdbcType=TINYINT},
+            attachment_url = #{attachmentUrl,jdbcType=VARCHAR},
+            attachment_name = #{attachmentName,jdbcType=VARCHAR},
+            source = #{source,jdbcType=TINYINT},
+            remark = #{remark,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="getResumeByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from resume
+        <where>
+            <if test="resume != null">
+                <if test="resume.name != null and resume.name != ''">
+                    and name like concat('%', #{resume.name}, '%')
+                </if>
+                <if test="resume.phone != null and resume.phone != ''">
+                    and phone like concat('%', #{resume.phone}, '%')
+                </if>
+                <if test="resume.education != null and resume.education != ''">
+                    and education = #{resume.education}
+                </if>
+                <if test="resume.jobIntention != null and resume.jobIntention != ''">
+                    and job_intention like concat('%', #{resume.jobIntention}, '%')
+                </if>
+                <if test="resume.status != null">
+                    and status = #{resume.status}
+                </if>
+                <if test="resume.workYears != null">
+                    and work_years = #{resume.workYears}
+                </if>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or phone like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by create_time desc
+        <if test="page != null and size != null">
+            limit #{page}, #{size}
+        </if>
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from resume
+        <where>
+            <if test="resume != null">
+                <if test="resume.name != null and resume.name != ''">
+                    and name like concat('%', #{resume.name}, '%')
+                </if>
+                <if test="resume.phone != null and resume.phone != ''">
+                    and phone like concat('%', #{resume.phone}, '%')
+                </if>
+                <if test="resume.education != null and resume.education != ''">
+                    and education = #{resume.education}
+                </if>
+                <if test="resume.jobIntention != null and resume.jobIntention != ''">
+                    and job_intention like concat('%', #{resume.jobIntention}, '%')
+                </if>
+                <if test="resume.status != null">
+                    and status = #{resume.status}
+                </if>
+                <if test="resume.workYears != null">
+                    and work_years = #{resume.workYears}
+                </if>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or phone like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <insert id="batchInsert">
+        insert into resume (name, gender, age, education, work_years, phone, email,
+                            expected_salary, job_intention, work_experience, education_experience,
+                            status, source, remark)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name}, #{item.gender}, #{item.age}, #{item.education}, #{item.workYears},
+             #{item.phone}, #{item.email}, #{item.expectedSalary}, #{item.jobIntention},
+             #{item.workExperience}, #{item.educationExperience}, #{item.status}, #{item.source}, #{item.remark})
+        </foreach>
+    </insert>
+
+    <select id="getResumeByStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from resume
+        where status = #{status}
+        order by create_time desc
+    </select>
+
+    <update id="updateStatus">
+        update resume
+        set status = #{status}
+        where id = #{id}
+    </update>
+</mapper>
