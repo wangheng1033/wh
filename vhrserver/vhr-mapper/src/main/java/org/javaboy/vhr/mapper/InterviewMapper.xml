@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.javaboy.vhr.mapper.InterviewMapper" >
+  <resultMap id="BaseResultMap" type="org.javaboy.vhr.model.Interview" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="resumeId" property="resumeId" jdbcType="INTEGER" />
+    <result column="candidateName" property="candidateName" jdbcType="VARCHAR" />
+    <result column="positionId" property="positionId" jdbcType="INTEGER" />
+    <result column="departmentId" property="departmentId" jdbcType="INTEGER" />
+    <result column="interviewTime" property="interviewTime" jdbcType="TIMESTAMP" />
+    <result column="interviewLocation" property="interviewLocation" jdbcType="VARCHAR" />
+    <result column="interviewerId" property="interviewerId" jdbcType="INTEGER" />
+    <result column="interviewerName" property="interviewerName" jdbcType="VARCHAR" />
+    <result column="interviewType" property="interviewType" jdbcType="VARCHAR" />
+    <result column="interviewStatus" property="interviewStatus" jdbcType="VARCHAR" />
+    <result column="result" property="result" jdbcType="VARCHAR" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+    <result column="advantages" property="advantages" jdbcType="VARCHAR" />
+    <result column="disadvantages" property="disadvantages" jdbcType="VARCHAR" />
+    <result column="suggestion" property="suggestion" jdbcType="VARCHAR" />
+    <result column="attachmentPath" property="attachmentPath" jdbcType="VARCHAR" />
+    <result column="notifyStatus" property="notifyStatus" jdbcType="VARCHAR" />
+    <result column="notifyWay" property="notifyWay" jdbcType="VARCHAR" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="createBy" property="createBy" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <association property="position" javaType="org.javaboy.vhr.model.Position">
+      <id column="pid" property="id"/>
+      <result column="pname" property="name"/>
+    </association>
+    <association property="department" javaType="org.javaboy.vhr.model.Department">
+      <id column="did" property="id"/>
+      <result column="dname" property="name"/>
+    </association>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    i.id, i.resumeId, i.candidateName, i.positionId, i.departmentId, i.interviewTime, 
+    i.interviewLocation, i.interviewerId, i.interviewerName, i.interviewType, i.interviewStatus, 
+    i.result, i.score, i.advantages, i.disadvantages, i.suggestion, i.attachmentPath, 
+    i.notifyStatus, i.notifyWay, i.createTime, i.updateTime, i.createBy, i.remark
+  </sql>
+  
+  <select id="getInterviewByPage" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM interview i
+    LEFT JOIN position p ON i.positionId = p.id
+    LEFT JOIN department d ON i.departmentId = d.id
+    <where>
+      <if test="interview.candidateName != null and interview.candidateName != ''">
+        AND i.candidateName LIKE CONCAT('%',#{interview.candidateName},'%')
+      </if>
+      <if test="interview.interviewStatus != null and interview.interviewStatus != ''">
+        AND i.interviewStatus = #{interview.interviewStatus}
+      </if>
+      <if test="interview.result != null and interview.result != ''">
+        AND i.result = #{interview.result}
+      </if>
+      <if test="interview.positionId != null">
+        AND i.positionId = #{interview.positionId}
+      </if>
+      <if test="interview.departmentId != null">
+        AND i.departmentId = #{interview.departmentId}
+      </if>
+      <if test="interview.interviewType != null and interview.interviewType != ''">
+        AND i.interviewType = #{interview.interviewType}
+      </if>
+    </where>
+    ORDER BY i.interviewTime DESC
+    <if test="page != null and size != null">
+      LIMIT #{page}, #{size}
+    </if>
+  </select>
+  
+  <select id="getTotal" resultType="java.lang.Long">
+    SELECT COUNT(*) FROM interview i
+    <where>
+      <if test="interview.candidateName != null and interview.candidateName != ''">
+        AND i.candidateName LIKE CONCAT('%',#{interview.candidateName},'%')
+      </if>
+      <if test="interview.interviewStatus != null and interview.interviewStatus != ''">
+        AND i.interviewStatus = #{interview.interviewStatus}
+      </if>
+      <if test="interview.result != null and interview.result != ''">
+        AND i.result = #{interview.result}
+      </if>
+      <if test="interview.positionId != null">
+        AND i.positionId = #{interview.positionId}
+      </if>
+      <if test="interview.departmentId != null">
+        AND i.departmentId = #{interview.departmentId}
+      </if>
+    </where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT <include refid="Base_Column_List"/>, p.id as pid, p.name as pname, d.id as did, d.name as dname
+    FROM interview i
+    LEFT JOIN position p ON i.positionId = p.id
+    LEFT JOIN department d ON i.departmentId = d.id
+    WHERE i.id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getInterviewStatistics" resultType="java.util.Map">
+    SELECT 
+      p.name as positionName,
+      COUNT(*) as totalCount,
+      SUM(CASE WHEN i.result = '通过' THEN 1 ELSE 0 END) as passCount,
+      SUM(CASE WHEN i.result = '未通过' THEN 1 ELSE 0 END) as failCount,
+      SUM(CASE WHEN i.result = '待定' THEN 1 ELSE 0 END) as pendingCount
+    FROM interview i
+    LEFT JOIN position p ON i.positionId = p.id
+    <where>
+      <if test="startDate != null">
+        AND i.interviewTime &gt;= #{startDate}
+      </if>
+      <if test="endDate != null">
+        AND i.interviewTime &lt;= #{endDate}
+      </if>
+    </where>
+    GROUP BY i.positionId, p.name
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    DELETE FROM interview WHERE id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.javaboy.vhr.model.Interview" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO interview (resumeId, candidateName, positionId, departmentId, interviewTime, 
+      interviewLocation, interviewerId, interviewerName, interviewType, interviewStatus, 
+      notifyStatus, createBy, remark)
+    VALUES (#{resumeId}, #{candidateName}, #{positionId}, #{departmentId}, #{interviewTime},
+      #{interviewLocation}, #{interviewerId}, #{interviewerName}, #{interviewType}, #{interviewStatus},
+      #{notifyStatus}, #{createBy}, #{remark})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="org.javaboy.vhr.model.Interview" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO interview
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="resumeId != null" >resumeId,</if>
+      <if test="candidateName != null" >candidateName,</if>
+      <if test="positionId != null" >positionId,</if>
+      <if test="departmentId != null" >departmentId,</if>
+      <if test="interviewTime != null" >interviewTime,</if>
+      <if test="interviewLocation != null" >interviewLocation,</if>
+      <if test="interviewerId != null" >interviewerId,</if>
+      <if test="interviewerName != null" >interviewerName,</if>
+      <if test="interviewType != null" >interviewType,</if>
+      <if test="interviewStatus != null" >interviewStatus,</if>
+      <if test="result != null" >result,</if>
+      <if test="score != null" >score,</if>
+      <if test="advantages != null" >advantages,</if>
+      <if test="disadvantages != null" >disadvantages,</if>
+      <if test="suggestion != null" >suggestion,</if>
+      <if test="attachmentPath != null" >attachmentPath,</if>
+      <if test="notifyStatus != null" >notifyStatus,</if>
+      <if test="notifyWay != null" >notifyWay,</if>
+      <if test="createBy != null" >createBy,</if>
+      <if test="remark != null" >remark,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="resumeId != null" >#{resumeId},</if>
+      <if test="candidateName != null" >#{candidateName},</if>
+      <if test="positionId != null" >#{positionId},</if>
+      <if test="departmentId != null" >#{departmentId},</if>
+      <if test="interviewTime != null" >#{interviewTime},</if>
+      <if test="interviewLocation != null" >#{interviewLocation},</if>
+      <if test="interviewerId != null" >#{interviewerId},</if>
+      <if test="interviewerName != null" >#{interviewerName},</if>
+      <if test="interviewType != null" >#{interviewType},</if>
+      <if test="interviewStatus != null" >#{interviewStatus},</if>
+      <if test="result != null" >#{result},</if>
+      <if test="score != null" >#{score},</if>
+      <if test="advantages != null" >#{advantages},</if>
+      <if test="disadvantages != null" >#{disadvantages},</if>
+      <if test="suggestion != null" >#{suggestion},</if>
+      <if test="attachmentPath != null" >#{attachmentPath},</if>
+      <if test="notifyStatus != null" >#{notifyStatus},</if>
+      <if test="notifyWay != null" >#{notifyWay},</if>
+      <if test="createBy != null" >#{createBy},</if>
+      <if test="remark != null" >#{remark},</if>
+    </trim>
+  </insert>
+  
+  <insert id="batchInsert">
+    INSERT INTO interview (resumeId, candidateName, positionId, departmentId, interviewTime, 
+      interviewLocation, interviewerId, interviewerName, interviewType, interviewStatus, 
+      notifyStatus, createBy, createTime)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.resumeId}, #{item.candidateName}, #{item.positionId}, #{item.departmentId}, #{item.interviewTime},
+      #{item.interviewLocation}, #{item.interviewerId}, #{item.interviewerName}, #{item.interviewType}, #{item.interviewStatus},
+      #{item.notifyStatus}, #{item.createBy}, NOW())
+    </foreach>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="org.javaboy.vhr.model.Interview" >
+    UPDATE interview
+    <set >
+      <if test="resumeId != null" >resumeId = #{resumeId},</if>
+      <if test="candidateName != null" >candidateName = #{candidateName},</if>
+      <if test="positionId != null" >positionId = #{positionId},</if>
+      <if test="departmentId != null" >departmentId = #{departmentId},</if>
+      <if test="interviewTime != null" >interviewTime = #{interviewTime},</if>
+      <if test="interviewLocation != null" >interviewLocation = #{interviewLocation},</if>
+      <if test="interviewerId != null" >interviewerId = #{interviewerId},</if>
+      <if test="interviewerName != null" >interviewerName = #{interviewerName},</if>
+      <if test="interviewType != null" >interviewType = #{interviewType},</if>
+      <if test="interviewStatus != null" >interviewStatus = #{interviewStatus},</if>
+      <if test="result != null" >result = #{result},</if>
+      <if test="score != null" >score = #{score},</if>
+      <if test="advantages != null" >advantages = #{advantages},</if>
+      <if test="disadvantages != null" >disadvantages = #{disadvantages},</if>
+      <if test="suggestion != null" >suggestion = #{suggestion},</if>
+      <if test="attachmentPath != null" >attachmentPath = #{attachmentPath},</if>
+      <if test="notifyStatus != null" >notifyStatus = #{notifyStatus},</if>
+      <if test="notifyWay != null" >notifyWay = #{notifyWay},</if>
+      <if test="remark != null" >remark = #{remark},</if>
+      updateTime = NOW()
+    </set>
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="org.javaboy.vhr.model.Interview" >
+    UPDATE interview SET
+      resumeId = #{resumeId}, candidateName = #{candidateName}, positionId = #{positionId}, 
+      departmentId = #{departmentId}, interviewTime = #{interviewTime}, interviewLocation = #{interviewLocation},
+      interviewerId = #{interviewerId}, interviewerName = #{interviewerName}, interviewType = #{interviewType}, 
+      interviewStatus = #{interviewStatus}, result = #{result}, score = #{score}, advantages = #{advantages}, 
+      disadvantages = #{disadvantages}, suggestion = #{suggestion}, attachmentPath = #{attachmentPath},
+      notifyStatus = #{notifyStatus}, notifyWay = #{notifyWay}, remark = #{remark}, updateTime = NOW()
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

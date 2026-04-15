@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.javaboy.vhr.mapper.OfferMapper">
+    <resultMap id="BaseResultMap" type="org.javaboy.vhr.model.Offer">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="resume_id" property="resumeId" jdbcType="INTEGER"/>
+        <result column="interview_id" property="interviewId" jdbcType="INTEGER"/>
+        <result column="candidate_name" property="candidateName" jdbcType="VARCHAR"/>
+        <result column="position_id" property="positionId" jdbcType="INTEGER"/>
+        <result column="position_name" property="positionName" jdbcType="VARCHAR"/>
+        <result column="salary" property="salary" jdbcType="VARCHAR"/>
+        <result column="probation_period" property="probationPeriod" jdbcType="INTEGER"/>
+        <result column="entry_date" property="entryDate" jdbcType="DATE"/>
+        <result column="offer_valid_date" property="offerValidDate" jdbcType="DATE"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="send_time" property="sendTime" jdbcType="TIMESTAMP"/>
+        <result column="view_status" property="viewStatus" jdbcType="TINYINT"/>
+        <result column="view_time" property="viewTime" jdbcType="TIMESTAMP"/>
+        <result column="confirm_time" property="confirmTime" jdbcType="TIMESTAMP"/>
+        <result column="reject_reason" property="rejectReason" jdbcType="VARCHAR"/>
+        <result column="notify_hr_status" property="notifyHrStatus" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, resume_id, interview_id, candidate_name, position_id, position_name, salary,
+        probation_period, entry_date, offer_valid_date, status, send_time, view_status, view_time,
+        confirm_time, reject_reason, notify_hr_status, create_time, update_time, create_by, remark
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from offer
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from offer
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" parameterType="org.javaboy.vhr.model.Offer">
+        insert into offer (id, resume_id, interview_id, candidate_name, position_id, position_name,
+                           salary, probation_period, entry_date, offer_valid_date, status, send_time,
+                           view_status, view_time, confirm_time, reject_reason, notify_hr_status,
+                           create_by, remark)
+        values (#{id,jdbcType=INTEGER}, #{resumeId,jdbcType=INTEGER}, #{interviewId,jdbcType=INTEGER},
+                #{candidateName,jdbcType=VARCHAR}, #{positionId,jdbcType=INTEGER}, #{positionName,jdbcType=VARCHAR},
+                #{salary,jdbcType=VARCHAR}, #{probationPeriod,jdbcType=INTEGER}, #{entryDate,jdbcType=DATE},
+                #{offerValidDate,jdbcType=DATE}, #{status,jdbcType=TINYINT}, #{sendTime,jdbcType=TIMESTAMP},
+                #{viewStatus,jdbcType=TINYINT}, #{viewTime,jdbcType=TIMESTAMP}, #{confirmTime,jdbcType=TIMESTAMP},
+                #{rejectReason,jdbcType=VARCHAR}, #{notifyHrStatus,jdbcType=TINYINT},
+                #{createBy,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="org.javaboy.vhr.model.Offer" useGeneratedKeys="true" keyProperty="id">
+        insert into offer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="resumeId != null">
+                resume_id,
+            </if>
+            <if test="interviewId != null">
+                interview_id,
+            </if>
+            <if test="candidateName != null">
+                candidate_name,
+            </if>
+            <if test="positionId != null">
+                position_id,
+            </if>
+            <if test="positionName != null">
+                position_name,
+            </if>
+            <if test="salary != null">
+                salary,
+            </if>
+            <if test="probationPeriod != null">
+                probation_period,
+            </if>
+            <if test="entryDate != null">
+                entry_date,
+            </if>
+            <if test="offerValidDate != null">
+                offer_valid_date,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="sendTime != null">
+                send_time,
+            </if>
+            <if test="viewStatus != null">
+                view_status,
+            </if>
+            <if test="viewTime != null">
+                view_time,
+            </if>
+            <if test="confirmTime != null">
+                confirm_time,
+            </if>
+            <if test="rejectReason != null">
+                reject_reason,
+            </if>
+            <if test="notifyHrStatus != null">
+                notify_hr_status,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="resumeId != null">
+                #{resumeId,jdbcType=INTEGER},
+            </if>
+            <if test="interviewId != null">
+                #{interviewId,jdbcType=INTEGER},
+            </if>
+            <if test="candidateName != null">
+                #{candidateName,jdbcType=VARCHAR},
+            </if>
+            <if test="positionId != null">
+                #{positionId,jdbcType=INTEGER},
+            </if>
+            <if test="positionName != null">
+                #{positionName,jdbcType=VARCHAR},
+            </if>
+            <if test="salary != null">
+                #{salary,jdbcType=VARCHAR},
+            </if>
+            <if test="probationPeriod != null">
+                #{probationPeriod,jdbcType=INTEGER},
+            </if>
+            <if test="entryDate != null">
+                #{entryDate,jdbcType=DATE},
+            </if>
+            <if test="offerValidDate != null">
+                #{offerValidDate,jdbcType=DATE},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="sendTime != null">
+                #{sendTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="viewStatus != null">
+                #{viewStatus,jdbcType=TINYINT},
+            </if>
+            <if test="viewTime != null">
+                #{viewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="confirmTime != null">
+                #{confirmTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="rejectReason != null">
+                #{rejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="notifyHrStatus != null">
+                #{notifyHrStatus,jdbcType=TINYINT},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.javaboy.vhr.model.Offer">
+        update offer
+        <set>
+            <if test="resumeId != null">
+                resume_id = #{resumeId,jdbcType=INTEGER},
+            </if>
+            <if test="interviewId != null">
+                interview_id = #{interviewId,jdbcType=INTEGER},
+            </if>
+            <if test="candidateName != null">
+                candidate_name = #{candidateName,jdbcType=VARCHAR},
+            </if>
+            <if test="positionId != null">
+                position_id = #{positionId,jdbcType=INTEGER},
+            </if>
+            <if test="positionName != null">
+                position_name = #{positionName,jdbcType=VARCHAR},
+            </if>
+            <if test="salary != null">
+                salary = #{salary,jdbcType=VARCHAR},
+            </if>
+            <if test="probationPeriod != null">
+                probation_period = #{probationPeriod,jdbcType=INTEGER},
+            </if>
+            <if test="entryDate != null">
+                entry_date = #{entryDate,jdbcType=DATE},
+            </if>
+            <if test="offerValidDate != null">
+                offer_valid_date = #{offerValidDate,jdbcType=DATE},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="sendTime != null">
+                send_time = #{sendTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="viewStatus != null">
+                view_status = #{viewStatus,jdbcType=TINYINT},
+            </if>
+            <if test="viewTime != null">
+                view_time = #{viewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="confirmTime != null">
+                confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="rejectReason != null">
+                reject_reason = #{rejectReason,jdbcType=VARCHAR},
+            </if>
+            <if test="notifyHrStatus != null">
+                notify_hr_status = #{notifyHrStatus,jdbcType=TINYINT},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.javaboy.vhr.model.Offer">
+        update offer
+        set resume_id = #{resumeId,jdbcType=INTEGER},
+            interview_id = #{interviewId,jdbcType=INTEGER},
+            candidate_name = #{candidateName,jdbcType=VARCHAR},
+            position_id = #{positionId,jdbcType=INTEGER},
+            position_name = #{positionName,jdbcType=VARCHAR},
+            salary = #{salary,jdbcType=VARCHAR},
+            probation_period = #{probationPeriod,jdbcType=INTEGER},
+            entry_date = #{entryDate,jdbcType=DATE},
+            offer_valid_date = #{offerValidDate,jdbcType=DATE},
+            status = #{status,jdbcType=TINYINT},
+            send_time = #{sendTime,jdbcType=TIMESTAMP},
+            view_status = #{viewStatus,jdbcType=TINYINT},
+            view_time = #{viewTime,jdbcType=TIMESTAMP},
+            confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
+            reject_reason = #{rejectReason,jdbcType=VARCHAR},
+            notify_hr_status = #{notifyHrStatus,jdbcType=TINYINT},
+            create_by = #{createBy,jdbcType=INTEGER},
+            remark = #{remark,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="getOfferByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from offer
+        <where>
+            <if test="offer != null">
+                <if test="offer.resumeId != null">
+                    and resume_id = #{offer.resumeId}
+                </if>
+                <if test="offer.candidateName != null and offer.candidateName != ''">
+                    and candidate_name like concat('%', #{offer.candidateName}, '%')
+                </if>
+                <if test="offer.positionId != null">
+                    and position_id = #{offer.positionId}
+                </if>
+                <if test="offer.status != null">
+                    and status = #{offer.status}
+                </if>
+                <if test="offer.viewStatus != null">
+                    and view_status = #{offer.viewStatus}
+                </if>
+            </if>
+        </where>
+        order by create_time desc
+        <if test="page != null and size != null">
+            limit #{page}, #{size}
+        </if>
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from offer
+        <where>
+            <if test="offer != null">
+                <if test="offer.resumeId != null">
+                    and resume_id = #{offer.resumeId}
+                </if>
+                <if test="offer.candidateName != null and offer.candidateName != ''">
+                    and candidate_name like concat('%', #{offer.candidateName}, '%')
+                </if>
+                <if test="offer.positionId != null">
+                    and position_id = #{offer.positionId}
+                </if>
+                <if test="offer.status != null">
+                    and status = #{offer.status}
+                </if>
+                <if test="offer.viewStatus != null">
+                    and view_status = #{offer.viewStatus}
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="getOfferByResumeId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from offer
+        where resume_id = #{resumeId}
+        limit 1
+    </select>
+
+    <update id="updateStatus">
+        update offer
+        set status = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateViewStatus">
+        update offer
+        set view_status = #{viewStatus},
+            view_time = #{viewTime}
+        where id = #{id}
+    </update>
+
+    <select id="getExpiringOffers" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from offer
+        where offer_valid_date &lt;= #{date}
+        and status = 1
+    </select>
+
+    <select id="getUpcomingEntryOffers" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from offer
+        where entry_date between #{startDate} and #{endDate}
+        and status = 2
+    </select>
+</mapper>
